@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+      - .github/workflows/docker-ui.yml
       - QuizUI/**
 
 jobs:

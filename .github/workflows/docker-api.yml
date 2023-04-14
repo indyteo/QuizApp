@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+      - .github/workflows/docker-api.yml
       - QuizAPI/**
 
 jobs:
