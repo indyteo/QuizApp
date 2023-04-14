@@ -25,6 +25,6 @@ jobs:
         with:
           image: indyteo/quiz-test-api:latest
           run: |
-            curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+            wget -O- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
             postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
             postman collection run "26907000-20e739bf-ad44-4073-a813-21e2bd77b5ca" -e "26907000-3c0258c3-8de0-49be-963e-b7e9b7981061" --integration-id "138488-${{ github.run_id }}"
