@@ -29,4 +29,6 @@ jobs:
         with:
           context: QuizUI
           push: true
+          build-args: |
+            api_url=/api
           tags: indyteo/quiz-prod-ui:latest
