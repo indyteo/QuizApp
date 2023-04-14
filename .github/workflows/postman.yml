@@ -28,6 +28,6 @@ jobs:
       - name: Run API tests
         uses: addnab/docker-run-action@v3
         with:
-          image: test-image:latest
+          image: indyteo/quiz-test-api:latest
           run: |
             postman collection run "26907000-20e739bf-ad44-4073-a813-21e2bd77b5ca" -e "26907000-3c0258c3-8de0-49be-963e-b7e9b7981061" --integration-id "138488-${{ github.run_id }}"
