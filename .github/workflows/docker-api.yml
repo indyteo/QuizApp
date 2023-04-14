@@ -3,7 +3,7 @@ name: "Build API Docker image and push it to Docker Hub"
 on:
   push:
     branches:
-      - master
+      - release
     paths:
       - .github/workflows/docker-api.yml
       - QuizAPI/**
