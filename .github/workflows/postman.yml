@@ -14,17 +14,21 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
-      - name: Build Docker image
-        uses: docker/build-push-action@v4
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
         with:
-          context: QuizAPI
-          push: false
-          tags: indyteo/quiz-test-api:latest
-      - name: Setup Postman CLI and run API tests
-        uses: addnab/docker-run-action@v3
-        with:
-          image: indyteo/quiz-test-api:latest
-          run: |
-            wget -O- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
-            postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
-            postman collection run "26907000-20e739bf-ad44-4073-a813-21e2bd77b5ca" -e "26907000-3c0258c3-8de0-49be-963e-b7e9b7981061" --integration-id "138488-${{ github.run_id }}"
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r QuizAPI/requirements.txt
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+      - name: Start QuizAPI in background
+        run: python QuizAPI/app.py &
+      - name: Run API tests
+        run: |
+          postman collection run "26907000-20e739bf-ad44-4073-a813-21e2bd77b5ca" -e "26907000-3c0258c3-8de0-49be-963e-b7e9b7981061" --integration-id "138488-${{ github.run_id }}"
