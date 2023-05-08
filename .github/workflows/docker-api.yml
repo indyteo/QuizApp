@@ -10,7 +10,6 @@ on:
 
 jobs:
   docker-api:
-    if:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
