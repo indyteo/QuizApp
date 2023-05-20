@@ -195,8 +195,8 @@ class Database:
 				cur.close()
 				return result
 
-			def list_() -> list[BaseClass]:
-				return self.fetch_many(db_table, db_table.select().build_sql())
+			def list_(condition: str = None, **parameters) -> list[BaseClass]:
+				return self.fetch_many(db_table, db_table.select().where(condition).build_sql(), **parameters)
 
 			def get(**ids) -> BaseClass:
 				table_ids = db_table.get_ids()
@@ -231,6 +231,6 @@ class DatabaseModel(Protocol):
 	def save(self: T) -> bool: ...
 	def delete(self: T) -> bool: ...
 	@classmethod
-	def list(cls: type[T]) -> list[T]: ...
+	def list(cls: type[T], condition: str = None, **parameters) -> list[T]: ...
 	@classmethod
 	def get(cls: type[T], **ids) -> T: ...
