@@ -28,7 +28,7 @@ jobs:
       - name: Login to Postman CLI
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
       - name: Start QuizAPI in background
-        run: python QuizAPI/app.py &
+        run: cd QuizAPI && python app.py &
         env:
           APP_SECRET: ${{ secrets.API_SECRET }}
           APP_ADMIN_PASSWORD: ${{ secrets.API_ADMIN_PASSWORD }}
