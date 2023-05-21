@@ -109,7 +109,7 @@ class Database:
 	def __init__(self, file: str = "database.db", auto_create_tables: bool = False, table_create_options: "CreateOptions" = None, debug: bool = False):
 		self.file = file
 		self.connection = connect(file, isolation_level=None, check_same_thread=False)
-		self.tables = {}
+		self.tables: dict[str, Table] = {}
 		self.auto_create_tables = auto_create_tables
 		self.table_create_options = table_create_options
 		self.debug = debug

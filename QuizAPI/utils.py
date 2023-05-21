@@ -1,5 +1,6 @@
 from functools import wraps
 from re import search
+from sys import stderr
 from flask import Response, request
 
 from jwt_utils import decode_token, JwtError
@@ -15,6 +16,7 @@ def returns_json(handler):
 		except APIError as e:
 			ret = e
 		except Exception as e:
+			print(e, file=stderr)
 			ret = APIError.internal_server_error(e)
 		if type(ret) is tuple:
 			obj, code = ret

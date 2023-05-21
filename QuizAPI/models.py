@@ -1,7 +1,7 @@
 from os import environ
 
 from pyjson import JsonBindings, JsonModel
-from pysql import Database, DatabaseModel, Column, Primary, Foreign, Delete, Unique
+from pysql import Database, DatabaseModel, Column, Primary, Foreign, Delete
 
 debug = int(environ.get("FLASK_DEBUG")) != 0
 db = Database("quiz.db", auto_create_tables=True, debug=debug)
@@ -39,7 +39,7 @@ class Answer(DatabaseModel, JsonModel):
 		self.is_correct = is_correct
 
 
-@db.model("questions", Column("id", int, Primary(True)), Column("text", str), Column("title", str), Column("image", str), Column("position", int, Unique()))
+@db.model("questions", Column("id", int, Primary(True)), Column("text", str), Column("title", str), Column("image", str), Column("position", int))
 @json.model(text=str, title=str, image=str, position=int, possible_answers=([Answer, ...], "possibleAnswers"))
 class Question(DatabaseModel, JsonModel):
 	id: int
@@ -55,9 +55,12 @@ class Question(DatabaseModel, JsonModel):
 		self.possible_answers = Answer.list("question = :id", id=self.id)
 		return self
 
+	def delete_answers(self):
+		db.execute(Delete(Answer.__table__.name).where("question = :id").build_sql(), id=self.id).close()
+
 	def save_answers(self, cleanup_old_answers: bool = True):
 		if cleanup_old_answers:
-			db.execute(Delete(Answer.__table__.name).where("question = :id").build_sql(), id=self.id)
+			self.delete_answers()
 		for answer in self.possible_answers:
 			answer.question = self.id
 			answer.add()

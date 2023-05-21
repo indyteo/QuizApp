@@ -5,12 +5,22 @@ from flask import Flask, request
 from flask_cors import CORS
 
 from jwt_utils import build_token
-from models import Question, LoginRequest, LoginResponse, QuizInfo, Score, Participation, APIError, QuestionId
+from models import db, Question, LoginRequest, LoginResponse, QuizInfo, Score, Participation, APIError, QuestionId
 from pysql import Update, raw_sql
 from utils import returns_json, request_model, requires_authentication
 
 app = Flask(__name__)
 CORS(app)
+
+
+@app.route("/rebuild-db", methods=["POST"])
+@requires_authentication
+@returns_json
+def rebuild_db():
+	for table in db.tables.values():
+		db.execute(table.drop().build_sql()).close()
+		db.execute(table.create().build_sql()).close()
+	return "Ok"
 
 
 @app.route("/login", methods=["POST"])
@@ -80,7 +90,7 @@ def participate(payload: Participation):
 @request_model(Question)
 @returns_json
 def create_question(payload: Question):
-	Question.__database__.execute(Update(Question.__table__.name).set("position", raw_sql("position + 1")).where("position >= :position").build_sql(), position=payload.position)
+	db.execute(Update(Question.__table__.name).set("position", raw_sql("position + 1")).where("position >= :position").build_sql(), position=payload.position).close()
 	payload.add("id")
 	payload.save_answers(False)
 	return QuestionId(payload.id)
@@ -96,7 +106,7 @@ def update_question(question_id: int, payload: Question):
 		raise APIError.not_found("Question", question_id)
 	if payload.position != previous_question.position:
 		operation = "+" if payload.position < previous_question.position else "-"
-		Question.__database__.execute(Update(Question.__table__.name).set("position", raw_sql(f"position {operation} 1")).where("position >= :position AND position <= :position AND id <> :id").build_sql(), position=payload.position, id=question_id)
+		db.execute(Update(Question.__table__.name).set("position", raw_sql(f"position {operation} 1")).where("position >= :position AND position <= :position AND id <> :id").build_sql(), position=payload.position, id=question_id).close()
 	payload.id = question_id
 	payload.save()
 	payload.save_answers()
@@ -107,8 +117,10 @@ def update_question(question_id: int, payload: Question):
 @requires_authentication
 @returns_json
 def delete_question(question_id: int):
-	if not Question.fake(question_id).delete():
+	question = Question.fake(question_id)
+	if not question.delete():
 		raise APIError.not_found("Question", question_id)
+	question.delete_answers()
 	return "", 204
 
 
@@ -116,7 +128,7 @@ def delete_question(question_id: int):
 @requires_authentication
 @returns_json
 def delete_all_questions():
-	Question.__database__.execute(Question.__table__.delete(False).all_rows(True).build_sql()).close()
+	db.execute(Question.__table__.delete(False).all_rows(True).build_sql()).close()
 	return "", 204
 
 
@@ -124,7 +136,7 @@ def delete_all_questions():
 @requires_authentication
 @returns_json
 def delete_all_scores():
-	Score.__database__.execute(Score.__table__.delete(False).all_rows(True).build_sql()).close()
+	db.execute(Score.__table__.delete(False).all_rows(True).build_sql()).close()
 	return "", 204
 
 
