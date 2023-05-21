@@ -1,3 +1,4 @@
+from threading import Lock
 from collections import Counter
 from sqlite3 import connect, sqlite_version_info
 from typing import Union, Iterable, TYPE_CHECKING, TypeVar, Protocol
@@ -107,18 +108,20 @@ def bind_object(table: Table, cur: "Cursor", row: tuple, obj):
 class Database:
 	def __init__(self, file: str = "database.db", auto_create_tables: bool = False, table_create_options: "CreateOptions" = None, debug: bool = False):
 		self.file = file
-		self.connection = connect(file, isolation_level=None)
+		self.connection = connect(file, isolation_level=None, check_same_thread=False)
 		self.tables = {}
 		self.auto_create_tables = auto_create_tables
 		self.table_create_options = table_create_options
 		self.debug = debug
+		self._sql_execution_lock = Lock()
 
 	def execute(self, sql: str, **parameters):
-		if self.debug:
-			print(f"SQL: {sql}")
-			for (param, value) in parameters.items():
-				print(f"\t{param}: {value}")
-		return self.connection.execute(sql, parameters)
+		with self._sql_execution_lock:
+			if self.debug:
+				print(f"SQL: {sql}")
+				for (param, value) in parameters.items():
+					print(f"\t{param}: {value}")
+			return self.connection.execute(sql, parameters)
 
 	def fetch_one(self, table: Table, sql: str, **parameters):
 		cur = self.execute(sql, **parameters)
