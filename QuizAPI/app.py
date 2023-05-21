@@ -98,7 +98,7 @@ def update_question(question_id: int, payload: Question):
 	payload.id = question_id
 	payload.save()
 	payload.save_answers()
-	return None, 204
+	return "", 204
 
 
 @app.route("/questions/<int:question_id>", methods=["DELETE"])
@@ -107,7 +107,7 @@ def update_question(question_id: int, payload: Question):
 def delete_question(question_id: int):
 	if not Question.fake(question_id).delete():
 		raise APIError.not_found("Question", question_id)
-	return None, 204
+	return "", 204
 
 
 @app.route("/questions/all", methods=["DELETE"])
@@ -115,7 +115,7 @@ def delete_question(question_id: int):
 @returns_json
 def delete_all_questions():
 	Question.__database__.execute(Question.__table__.delete(False).all_rows(True).build_sql()).close()
-	return None, 204
+	return "", 204
 
 
 @app.route("/participations/all", methods=["DELETE"])
@@ -123,7 +123,7 @@ def delete_all_questions():
 @returns_json
 def delete_all_scores():
 	Score.__database__.execute(Score.__table__.delete(False).all_rows(True).build_sql()).close()
-	return None, 204
+	return "", 204
 
 
 if __name__ == "__main__":
