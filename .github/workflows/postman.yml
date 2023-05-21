@@ -30,6 +30,8 @@ jobs:
       - name: Start QuizAPI in background
         run: cd QuizAPI && python app.py &
         env:
+          FLASK_DEBUG: 0
+          FLASK_ENV: test
           APP_SECRET: ${{ secrets.API_SECRET }}
           APP_ADMIN_PASSWORD: ${{ secrets.API_ADMIN_PASSWORD }}
       - name: Run API tests
