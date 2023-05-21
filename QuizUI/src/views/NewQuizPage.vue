@@ -3,11 +3,16 @@
     <h1>New Quiz Page</h1>
     <form>
       <div className="mb-3">
-        <label htmlFor="playerName" className="form-label">Saisissez votre nom : </label>
-        <input type="text" className="form-control" id="playerName" v-model="username" />
+
+        <v-text-field
+          v-model="username"
+          color="primary"
+          label="Votre nom"
+          variant="filled"
+        ></v-text-field>
 
       </div>
-      <button type="submit" className="btn btn-primary">GO!</button>
+      <v-btn type="submit">GO!</v-btn>
     </form>
   </div>
 </template>
