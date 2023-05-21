@@ -28,7 +28,16 @@ export default {
         });
   },
   getQuizInfo() {
-    return this.call("get", "quiz-info");
+    //return this.call("get", "quiz-info");
+    return Promise.resolve().then(() => ({
+      size : 10, scores: [
+        {playerName : "jenny", score : 1},
+        {playerName : "theo", score : 2},
+        {playerName : "juan", score : 3}
+      ]
+    }) ).then((data) => ({
+      data
+    }))
   },
   getQuestion(position) {
     // not implemented
