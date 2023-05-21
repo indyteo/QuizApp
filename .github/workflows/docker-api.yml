@@ -29,4 +29,7 @@ jobs:
         with:
           context: QuizAPI
           push: true
+          build-args: |
+            app_secret=${{ secrets.API_SECRET }}
+            app_admin_password=${{ secrets.API_ADMIN_PASSWORD }}
           tags: indyteo/quiz-prod-api:latest

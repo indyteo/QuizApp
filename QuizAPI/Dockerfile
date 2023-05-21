@@ -1,6 +1,9 @@
 # Image de l'API basée sur une image python
 FROM python:3.9-alpine
 
+ARG app_secret
+ARG app_admin_password
+
 # Création et positionnement du répertoire par défaut dans le container
 WORKDIR /app
 
@@ -32,6 +35,8 @@ RUN touch quiz.db
 ENV FLASK_DEBUG=0
 ENV FLASK_ENV=production
 ENV FLASK_APP=app.py
+ENV APP_SECRET=$app_secret
+ENV APP_ADMIN_PASSWORD=$app_admin_password
 
 # Copie de l'ensemble du code + dépendances
 COPY --chown=quiz:quiz . .

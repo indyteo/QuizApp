@@ -29,6 +29,9 @@ jobs:
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
       - name: Start QuizAPI in background
         run: python QuizAPI/app.py &
+        env:
+          APP_SECRET=${{ secrets.API_SECRET }}
+          APP_ADMIN_PASSWORD=${{ secrets.API_ADMIN_PASSWORD }}
       - name: Run API tests
         run: |
           postman collection run "26907000-20e739bf-ad44-4073-a813-21e2bd77b5ca" -e "26907000-3c0258c3-8de0-49be-963e-b7e9b7981061" --integration-id "138488-${{ github.run_id }}"

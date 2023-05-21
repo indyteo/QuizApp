@@ -86,8 +86,9 @@ class Table:
 				update.set(column.sql_name, placeholder(column.sql_name))
 		return update
 
-	def delete(self):
-		return Delete(self.name).where(self.get_ids_condition())
+	def delete(self, where_id: bool = True):
+		delete = Delete(self.name)
+		return delete.where(self.get_ids_condition()) if where_id else delete
 
 
 def bind_new(table: Table, cur: "Cursor", row: tuple):
@@ -195,8 +196,18 @@ class Database:
 				cur.close()
 				return result
 
-			def list_(condition: str = None, **parameters) -> list[BaseClass]:
-				return self.fetch_many(db_table, db_table.select().where(condition).build_sql(), **parameters)
+			def list_(condition: str = None, order_by: str = None, **parameters) -> list[BaseClass]:
+				select = db_table.select().where(condition)
+				if order_by:
+					select.order_by(order_by)
+				return self.fetch_many(db_table, select.build_sql(), **parameters)
+
+			def count(condition: str = None, **parameters) -> int:
+				cur = self.execute(Select().value("count(*)").from_table(db_table.name).where(condition).build_sql(), **parameters)
+				row = cur.fetchone()
+				total = row[0] if row else 0
+				cur.close()
+				return total
 
 			def get(**ids) -> BaseClass:
 				table_ids = db_table.get_ids()
@@ -212,6 +223,7 @@ class Database:
 			setattr(BaseClass, "save", save)
 			setattr(BaseClass, "delete", delete)
 			setattr(BaseClass, "list", staticmethod(list_))
+			setattr(BaseClass, "count", staticmethod(count))
 			setattr(BaseClass, "get", staticmethod(get))
 			return BaseClass
 
@@ -231,6 +243,8 @@ class DatabaseModel(Protocol):
 	def save(self: T) -> bool: ...
 	def delete(self: T) -> bool: ...
 	@classmethod
-	def list(cls: type[T], condition: str = None, **parameters) -> list[T]: ...
+	def list(cls: type[T], condition: str = None, order_by: str = None, **parameters) -> list[T]: ...
+	@staticmethod
+	def count(condition: str = None, **parameters) -> int: ...
 	@classmethod
 	def get(cls: type[T], **ids) -> T: ...

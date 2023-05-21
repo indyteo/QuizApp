@@ -2,25 +2,42 @@ from functools import wraps
 from flask import Response, request
 
 from QuizAPI.jwt_utils import decode_token, JwtError
+from QuizAPI.models import APIError
 from QuizAPI.pyjson import JsonModel
 
 
 def returns_json(handler):
 	@wraps(handler)
 	def wrapper(*args, **kwargs):
-		ret = handler(*args, **kwargs)
+		try:
+			ret = handler(*args, **kwargs)
+		except APIError as e:
+			ret = e
+		except Exception as e:
+			ret = APIError.internal_server_error(e)
 		if type(ret) is tuple:
 			obj, code = ret
 		else:
 			obj = ret
-			code = None
-		if hasattr(obj, "to_json"):
-			res = Response(obj.to_json())
-			res.headers.set("Content-Type", "application/json")
-			if code:
-				res.status_code = code
-			return res
-		return ret
+			code = obj.code if isinstance(obj, APIError) else None
+		if type(obj) is list and len(obj) > 0:
+			json_type = type(obj[0])
+			for i in range(1, len(obj)):
+				if type(obj[i]) != json_type:
+					return ret
+			if hasattr(json_type, "to_json_list"):
+				json = json_type.to_json_list(obj)
+			else:
+				return ret
+		elif hasattr(obj, "to_json"):
+			json = obj.to_json()
+		else:
+			return ret
+		res = Response(json)
+		res.headers.set("Content-Type", "application/json")
+		if code:
+			res.status_code = code
+		return res
 	return wrapper
 
 
