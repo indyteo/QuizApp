@@ -55,8 +55,9 @@ class Question(DatabaseModel, JsonModel):
 		self.possible_answers = Answer.list("question = :id", id=self.id)
 		return self
 
-	def save_answers(self):
-		db.execute(Delete(Answer.__table__.name).where("question = :id").build_sql(), id=self.id)
+	def save_answers(self, cleanup_old_answers: bool = True):
+		if cleanup_old_answers:
+			db.execute(Delete(Answer.__table__.name).where("question = :id").build_sql(), id=self.id)
 		for answer in self.possible_answers:
 			answer.question = self.id
 			answer.add()

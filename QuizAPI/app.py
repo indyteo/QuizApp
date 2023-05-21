@@ -81,6 +81,7 @@ def participate(payload: Participation):
 def create_question(payload: Question):
 	Question.__database__.execute(Update(Question.__table__.name).set("position", raw_sql("position + 1")).where("position >= :position").build_sql(), position=payload.position)
 	payload.add("id")
+	payload.save_answers(False)
 	return QuestionId(payload.id)
 
 
