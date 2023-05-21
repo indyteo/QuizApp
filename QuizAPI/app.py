@@ -65,8 +65,9 @@ def participate(payload: Participation):
 	for i in range(number_of_questions):
 		question = questions[i].with_answers()
 		answer = payload.answers[i]
-		if answer <= 0 or answer > 4:
-			raise APIError(f"Invalid answer #{answer} for question #{question.id} (must be between 1 and 4)")
+		number_of_possible_answers = len(question.possible_answers)
+		if answer <= 0 or answer > number_of_possible_answers:
+			raise APIError(f"Invalid answer #{answer} for question #{question.id} (must be between 1 and {number_of_possible_answers})")
 		if question.possible_answers[answer - 1].is_correct:
 			correct_answers += 1
 	score = Score(payload.player_name, correct_answers)

@@ -1,4 +1,5 @@
 from functools import wraps
+from re import search
 from flask import Response, request
 
 from jwt_utils import decode_token, JwtError
@@ -34,7 +35,7 @@ def returns_json(handler):
 		else:
 			return ret
 		res = Response(json)
-		res.headers.set("Content-Type", "application/json")
+		res.headers.set("Content-Type", "application/json; charset=utf-8")
 		if code:
 			res.status_code = code
 		return res
@@ -45,7 +46,10 @@ def request_model(model: type[JsonModel]):
 	def decorator(handler):
 		@wraps(handler)
 		def wrapper(*args, **kwargs):
-			obj = model.from_json(request.get_data(as_text=True))
+			content_type = request.headers.get("Content-Type")
+			charset_in_content_type = search("charset=(\\S+)", content_type)
+			charset = charset_in_content_type[1] if charset_in_content_type else "UTF-8"
+			obj = model.from_json(request.get_data().decode(charset))
 			return handler(*args, **kwargs, payload=obj)
 		return wrapper
 	return decorator

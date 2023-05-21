@@ -114,12 +114,15 @@ class Database:
 		self.table_create_options = table_create_options
 		self.debug = debug
 		self._sql_execution_lock = Lock()
+		self.execute("PRAGMA encoding=utf8")
 
 	def execute(self, sql: str, **parameters):
 		with self._sql_execution_lock:
 			if self.debug:
 				print(f"SQL: {sql}")
-				for (param, value) in parameters.items():
+				for param, value in parameters.items():
+					if isinstance(value, str):
+						value = value.encode("UTF-8")
 					print(f"\t{param}: {value}")
 			return self.connection.execute(sql, parameters)
 
