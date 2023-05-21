@@ -38,7 +38,7 @@ def login(payload: LoginRequest):
 @app.route("/quiz-info", methods=["GET"])
 @returns_json
 def get_quiz_info():
-	return QuizInfo(Question.count(), *Score.list())
+	return QuizInfo(Question.count(), *Score.list(order_by=("score", True)))
 
 
 @app.route("/questions", methods=["GET"])
@@ -106,7 +106,13 @@ def update_question(question_id: int, payload: Question):
 		raise APIError.not_found("Question", question_id)
 	if payload.position != previous_question.position:
 		operation = "+" if payload.position < previous_question.position else "-"
-		db.execute(Update(Question.__table__.name).set("position", raw_sql(f"position {operation} 1")).where("position >= :position AND position <= :position AND id <> :id").build_sql(), position=payload.position, id=question_id).close()
+		update_sql = Update(Question.__table__.name)\
+			.set("position", raw_sql(f"position {operation} 1"))\
+			.where("position BETWEEN :position_min AND :position_max AND id <> :id")\
+			.build_sql()
+		position_min = min(payload.position, previous_question.position)
+		position_max = max(payload.position, previous_question.position)
+		db.execute(update_sql, position_min=position_min, position_max=position_max, id=question_id).close()
 	payload.id = question_id
 	payload.save()
 	payload.save_answers()
@@ -117,10 +123,12 @@ def update_question(question_id: int, payload: Question):
 @requires_authentication
 @returns_json
 def delete_question(question_id: int):
-	question = Question.fake(question_id)
-	if not question.delete():
+	question = Question.get(id=question_id)
+	if not question:
 		raise APIError.not_found("Question", question_id)
 	question.delete_answers()
+	question.delete()
+	db.execute(Update(Question.__table__.name).set("position", raw_sql("position - 1")).where("position > :position").build_sql(), position=question.position).close()
 	return "", 204
 
 

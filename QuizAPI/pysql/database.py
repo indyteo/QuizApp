@@ -202,10 +202,14 @@ class Database:
 				cur.close()
 				return result
 
-			def list_(condition: str = None, order_by: str = None, **parameters) -> list[BaseClass]:
+			def list_(condition: str = None, order_by: Union[str, tuple[str, bool]] = None, **parameters) -> list[BaseClass]:
 				select = db_table.select().where(condition)
 				if order_by:
-					select.order_by(order_by)
+					if type(order_by) is tuple:
+						column, order = order_by
+					else:
+						column, order = order_by, False
+					select.order_by(column, order)
 				return self.fetch_many(db_table, select.build_sql(), **parameters)
 
 			def count(condition: str = None, **parameters) -> int:
@@ -249,7 +253,7 @@ class DatabaseModel(Protocol):
 	def save(self: T) -> bool: ...
 	def delete(self: T) -> bool: ...
 	@classmethod
-	def list(cls: type[T], condition: str = None, order_by: str = None, **parameters) -> list[T]: ...
+	def list(cls: type[T], condition: str = None, order_by: Union[str, tuple[str, bool]] = None, **parameters) -> list[T]: ...
 	@staticmethod
 	def count(condition: str = None, **parameters) -> int: ...
 	@classmethod

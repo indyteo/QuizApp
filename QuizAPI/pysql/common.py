@@ -53,8 +53,8 @@ class WhereOrderLimitOffset(SQLElement):
 		self.condition = condition
 		return self
 
-	def order_by(self: "T", order_by: str, asc: bool = True) -> "T":
-		self.orders.append((order_by, asc))
+	def order_by(self: "T", order_by: str, desc: bool = False) -> "T":
+		self.orders.append((order_by, desc))
 		return self
 
 	def with_limit(self: "T", limit: int) -> "T":
@@ -69,7 +69,7 @@ class WhereOrderLimitOffset(SQLElement):
 		if self.limit < 0 < self.offset:
 			raise RuntimeError("Cannot specify an OFFSET without a LIMIT value")
 		where = f"WHERE {self.condition}" if self.condition else None
-		orders = join_sql_string(", ", *[(quote_sql_name(order[0]) + (" DESC" if order[1] else "")) if type(order) is tuple else quote_sql_name(order) for order in self.orders])
+		orders = join_sql_string(", ", start="ORDER BY ", *[(quote_sql_name(order[0]) + (" DESC" if order[1] else "")) if type(order) is tuple else quote_sql_name(order) for order in self.orders])
 		limit = f"LIMIT {self.limit}" if self.limit >= 0 else None
 		offset = f"OFFSET {self.offset}" if self.offset > 0 else None
 		return join_sql_string(" ", where, orders, limit, offset)

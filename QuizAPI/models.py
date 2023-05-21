@@ -1,6 +1,6 @@
 from os import environ
 
-from pyjson import JsonBindings, JsonModel
+from pyjson import JsonBindings, JsonModel, Nullable
 from pysql import Database, DatabaseModel, Column, Primary, Foreign, Delete
 
 debug = int(environ.get("FLASK_DEBUG")) != 0
@@ -40,7 +40,7 @@ class Answer(DatabaseModel, JsonModel):
 
 
 @db.model("questions", Column("id", int, Primary(True)), Column("text", str), Column("title", str), Column("image", str), Column("position", int))
-@json.model(text=str, title=str, image=str, position=int, possible_answers=([Answer, ...], "possibleAnswers"))
+@json.model(id=Nullable(int), text=str, title=str, image=str, position=int, possible_answers=([Answer, ...], "possibleAnswers"))
 class Question(DatabaseModel, JsonModel):
 	id: int
 
