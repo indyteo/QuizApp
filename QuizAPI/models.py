@@ -1,7 +1,7 @@
 from os import environ
 
-from QuizAPI.pyjson import JsonBindings, JsonModel
-from QuizAPI.pysql import Database, DatabaseModel, Column, Primary, Foreign, Delete, Unique
+from pyjson import JsonBindings, JsonModel
+from pysql import Database, DatabaseModel, Column, Primary, Foreign, Delete, Unique
 
 debug = int(environ.get("FLASK_DEBUG")) != 0
 db = Database("quiz.db", auto_create_tables=True, debug=debug)

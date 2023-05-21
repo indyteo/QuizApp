@@ -1,9 +1,9 @@
 from functools import wraps
 from flask import Response, request
 
-from QuizAPI.jwt_utils import decode_token, JwtError
-from QuizAPI.models import APIError
-from QuizAPI.pyjson import JsonModel
+from jwt_utils import decode_token, JwtError
+from models import APIError
+from pyjson import JsonModel
 
 
 def returns_json(handler):

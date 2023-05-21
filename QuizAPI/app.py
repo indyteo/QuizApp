@@ -4,10 +4,10 @@ from os import environ
 from flask import Flask, request
 from flask_cors import CORS
 
-from QuizAPI.jwt_utils import build_token
-from QuizAPI.models import Question, LoginRequest, LoginResponse, QuizInfo, Score, Participation, APIError, QuestionId
-from QuizAPI.pysql import Update, raw_sql
-from QuizAPI.utils import returns_json, request_model, requires_authentication
+from jwt_utils import build_token
+from models import Question, LoginRequest, LoginResponse, QuizInfo, Score, Participation, APIError, QuestionId
+from pysql import Update, raw_sql
+from utils import returns_json, request_model, requires_authentication
 
 app = Flask(__name__)
 CORS(app)
