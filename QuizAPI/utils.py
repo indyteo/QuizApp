@@ -29,7 +29,7 @@ def returns_json(handler):
 				if type(obj[i]) != json_type:
 					return ret
 			if hasattr(json_type, "to_json_list"):
-				json = json_type.to_json_list(obj)
+				json = json_type.to_json_list(*obj)
 			else:
 				return ret
 		elif hasattr(obj, "to_json"):
