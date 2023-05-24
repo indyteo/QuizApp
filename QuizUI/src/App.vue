@@ -2,6 +2,9 @@
   <v-theme-provider :theme="theme" with-background>
     <v-layout full-height style="min-height: 100vh">
       <v-app-bar title="QuizApp ESIEE">
+        <template v-slot:image>
+          <v-img src="/logo.png" :style="theme === 'light' ? 'filter: invert(1)' : undefined" />
+        </template>
         <v-btn :to="{ name: 'home' }" class="mr-2">Accueil</v-btn>
         <v-btn :to="{ name: 'settings' }" class="mr-2">Paramètres</v-btn>
         <v-btn :to="{ name: 'admin' }">Admin</v-btn>
