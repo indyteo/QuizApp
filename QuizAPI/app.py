@@ -4,6 +4,7 @@ from os import environ
 
 from flask import Flask, request
 from flask_cors import CORS
+from werkzeug.exceptions import HTTPException
 
 from jwt_utils import build_token
 from models import db, Question, LoginRequest, LoginResponse, QuizInfo, Score, Participation, APIError, QuestionId, \
@@ -13,6 +14,14 @@ from utils import returns_json, request_model, requires_authentication
 
 app = Flask(__name__)
 CORS(app)
+
+
+@app.errorhandler(Exception)
+@returns_json
+def handle_exception(e):
+	if isinstance(e, HTTPException):
+		return APIError(e.description, e.code)
+	raise APIError.internal_server_error(e)
 
 
 @app.route("/rebuild-db", methods=["POST"])
