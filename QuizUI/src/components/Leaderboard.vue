@@ -18,7 +18,7 @@
           <template v-slot:append>
             <v-tooltip :text="'Date de la participation : ' + scoreEntry.date" location="bottom">
               <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" icon="mdi-clock-outline" size="small" :style="'transition: opacity 0.1s; opacity: ' + (isHovering ? 1 : 0)" />
+                <v-icon v-bind="props" icon="mdi-calendar-clock" size="small" :style="'transition: opacity 0.1s; opacity: ' + (isHovering ? 1 : 0)" />
               </template>
             </v-tooltip>
           </template>
