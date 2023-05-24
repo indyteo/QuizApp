@@ -34,7 +34,7 @@
   <v-list-item title="Ajout" :to="{ name: 'add' }" prepend-icon="mdi-plus-circle-outline" rounded="xl" color="success" />
   <v-list-item title="Suppression" :to="{ name: 'delete' }" prepend-icon="mdi-delete-empty-outline" rounded="xl" color="error" />
   <v-divider />
-  <v-list-item class="mt-1" title="Logout" @click="logout" prepend-icon="mdi-logout" rounded="xl" />
+  <v-list-item class="mt-1" title="Déconnexion" @click="logout" prepend-icon="mdi-logout" rounded="xl" />
 </template>
 
 <script>

@@ -3,7 +3,7 @@
       form-title="Nouvelle question"
       :saving="loading"
       @save="createNewQuestion"
-      @cancel="$router.push({ name: 'questions' })"
+      @cancel="$router.push({ name: 'admin' })"
   />
 </template>
 

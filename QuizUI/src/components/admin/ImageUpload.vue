@@ -14,7 +14,7 @@
       class="d-none"
       ref="fileInput"
   />
-  <span class="text-body-1 ml-2">{{ file ? file.name : 'Aucune image sélectionnée' }}</span>
+  <span class="text-body-1 ml-4">{{ file ? file.name : 'Aucune image sélectionnée' }}</span>
 </template>
 
 <script>

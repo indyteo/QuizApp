@@ -3,12 +3,14 @@ import HomePage from "@/views/HomePage.vue";
 import NewQuizPage from "@/views/NewQuizPage.vue";
 import QuestionManager from "@/views/QuestionManager.vue";
 import ResultPage from "@/views/ResultPage.vue";
+import Settings from "@/views/Settings.vue";
 import Login from "@/components/admin/Login.vue";
-import AdminQuestion from "@/components/admin/AdminQuestion.vue";
+import AdminHome from "@/components/admin/AdminHome.vue";
 import AdminQuestionsList from "@/components/admin/AdminQuestionsList.vue";
+import AdminQuestion from "@/components/admin/AdminQuestion.vue";
+import AdminEditQuestion from "@/components/admin/AdminEditQuestion.vue";
 import AdminNewQuestion from "@/components/admin/AdminNewQuestion.vue";
 import AdminDelete from "@/components/admin/AdminDelete.vue";
-import AdminEditQuestion from "@/components/admin/AdminEditQuestion.vue";
 import authenticationService from "@/services/AuthenticationService";
 
 const router = createRouter({
@@ -35,10 +37,19 @@ const router = createRouter({
       component: ResultPage,
     },
     {
+      path: "/settings",
+      name: "settings",
+      component: Settings,
+    },
+    {
       path: "/admin",
-      name: "admin",
       component: () => import("../views/Admin.vue"),
       children: [
+        {
+          path: "",
+          name: "admin",
+          component: AdminHome
+        },
         {
           path: "login",
           name: "login",

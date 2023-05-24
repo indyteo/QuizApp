@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" width="444">
     <template v-slot:activator="{ props }">
-      <slot :props="props" />
+      <slot :props="disabled ? { onClick: confirm } : props" />
     </template>
     <v-card rounded="xl" class="pa-2">
       <v-card-text>
@@ -25,7 +25,8 @@ export default {
   name: "ConfirmationDialog",
   props: {
     action: { type: String },
-    definitive: { type: Boolean }
+    definitive: { type: Boolean },
+    disabled: { type: Boolean }
   },
   data () {
     return {

@@ -14,5 +14,13 @@ export default {
   },
   getParticipationScore() {
     return parseInt(localStorage.getItem("quiz-player-score") ?? "0");
+  },
+  saveParticipationSummary(summary) {
+    if (summary)
+      localStorage.setItem("quiz-player-summary", JSON.stringify(summary));
+  },
+  getParticipationSummary() {
+    const value = localStorage.getItem("quiz-player-summary");
+    return value ? JSON.parse(value) : [];
   }
 };

@@ -27,6 +27,7 @@ export default {
       participationStorageService.savePlayerName(this.username);
       this.$router.push({ name: "quiz" });
     }
-  }
+  },
+  inheritAttrs: false
 };
 </script>

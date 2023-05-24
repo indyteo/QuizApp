@@ -39,6 +39,7 @@ export default {
       } else
         this.error = "Vous devez spécifier le mot de passe";
     }
-  }
+  },
+  inheritAttrs: false
 };
 </script>

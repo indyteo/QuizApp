@@ -1,3 +1,4 @@
+from datetime import datetime
 from hashlib import md5
 from os import environ
 
@@ -5,7 +6,8 @@ from flask import Flask, request
 from flask_cors import CORS
 
 from jwt_utils import build_token
-from models import db, Question, LoginRequest, LoginResponse, QuizInfo, Score, Participation, APIError, QuestionId
+from models import db, Question, LoginRequest, LoginResponse, QuizInfo, Score, Participation, APIError, QuestionId, \
+	AnswerSummary, ParticipationResponse
 from pysql import Update, raw_sql
 from utils import returns_json, request_model, requires_authentication
 
@@ -72,17 +74,23 @@ def participate(payload: Participation):
 	if number_of_answers != number_of_questions:
 		raise APIError(f"Incorrect number of answers, expected {number_of_questions} but received {number_of_answers}")
 	correct_answers = 0
+	summary = []
 	for i in range(number_of_questions):
 		question = questions[i].with_answers()
 		answer = payload.answers[i]
 		number_of_possible_answers = len(question.possible_answers)
 		if answer <= 0 or answer > number_of_possible_answers:
 			raise APIError(f"Invalid answer #{answer} for question #{question.id} (must be between 1 and {number_of_possible_answers})")
-		if question.possible_answers[answer - 1].is_correct:
+		correct = 0
+		for j, a in enumerate(question.possible_answers):
+			if a.is_correct:
+				correct = j + 1
+		if is_correct := answer == correct:
 			correct_answers += 1
-	score = Score(payload.player_name, correct_answers)
+		summary.append(AnswerSummary(correct, is_correct))
+	score = Score(payload.player_name, correct_answers, datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 	score.add("id")
-	return score
+	return ParticipationResponse(score, summary)
 
 
 @app.route("/questions", methods=["POST"])

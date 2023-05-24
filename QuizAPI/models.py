@@ -29,9 +29,10 @@ class APIError(Exception, JsonModel):
 		return APIError(repr(error) if debug else "An exception occurred during the handling of your request. Please try again later!", 500)
 
 
-@db.model("answer", Column("text", str), Column("is_correct", bool), Column("question", int, Foreign("questions", "id")))
-@json.model(text=str, is_correct=(bool, "isCorrect"))
+@db.model("answer", Column("id", int, Primary(True)), Column("text", str), Column("is_correct", bool), Column("question", int, Foreign("questions", "id")))
+@json.model(id=Nullable(int), text=str, is_correct=(bool, "isCorrect"))
 class Answer(DatabaseModel, JsonModel):
+	id: int
 	question: int
 
 	def __init__(self, text: str, is_correct: bool):
@@ -63,13 +64,7 @@ class Question(DatabaseModel, JsonModel):
 			self.delete_answers()
 		for answer in self.possible_answers:
 			answer.question = self.id
-			answer.add()
-
-	@staticmethod
-	def fake(id_: int):
-		fake = Question("", "", "", 0, [])
-		fake.id = id_
-		return fake
+			answer.add("id")
 
 
 @json.model(id=int)
@@ -78,12 +73,13 @@ class QuestionId(JsonModel):
 		self.id = id_
 
 
-@db.model("scores", Column("id", int, Primary(True)), Column("player_name", str), Column("score", int))
-@json.model(player_name=(str, "playerName"), score=int)
+@db.model("scores", Column("id", int, Primary(True)), Column("player_name", str), Column("score", int), Column("date", str))
+@json.model(player_name=(str, "playerName"), score=int, date=str)
 class Score(DatabaseModel, JsonModel):
-	def __init__(self, player_name: str, score: int):
+	def __init__(self, player_name: str, score: int, date: str):
 		self.player_name = player_name
 		self.score = score
+		self.date = date
 
 
 @json.model(size=int, scores=[Score, ...])
@@ -108,3 +104,18 @@ class LoginResponse(JsonModel):
 class Participation(JsonModel):
 	player_name: str
 	answers: list[int]
+
+
+@json.model(correct_answer_position=(int, "correctAnswerPosition"), was_correct=(bool, "wasCorrect"))
+class AnswerSummary(JsonModel):
+	def __init__(self, correct_answer_position: int, was_correct: int):
+		self.correct_answer_position = correct_answer_position
+		self.was_correct = was_correct
+
+
+@json.model(player_name=(str, "playerName"), score=int, answers_summaries=([AnswerSummary, ...], "answersSummaries"))
+class ParticipationResponse(JsonModel):
+	def __init__(self, score: Score, answers_summaries: list[AnswerSummary]):
+		self.player_name = score.player_name
+		self.score = score.score
+		self.answers_summaries = answers_summaries

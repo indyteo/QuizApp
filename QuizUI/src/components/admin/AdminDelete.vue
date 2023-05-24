@@ -5,7 +5,7 @@
     <settings-layout name="Participations" description="Réinitialiser le classement">
       <confirmation-dialog action="supprimer toutes les participations" definitive @confirm="deleteParticipations">
         <template v-slot="{ props }">
-          <v-btn v-bind="props" text="Réinitialiser" prepend-icon="mdi-trophy-broken" color="warning" rounded="xl" />
+          <v-btn v-bind="props" variant="outlined" text="Réinitialiser" prepend-icon="mdi-trophy-broken" color="warning" rounded="xl" />
         </template>
       </confirmation-dialog>
     </settings-layout>

@@ -13,6 +13,7 @@ import Leaderboard from "@/components/Leaderboard.vue";
 
 export default {
   name: "HomePage",
-  components: { Leaderboard, CenterLayout }
+  components: { Leaderboard, CenterLayout },
+  inheritAttrs: false
 };
 </script>

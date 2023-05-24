@@ -14,6 +14,15 @@ export default {
     return localStorage.getItem("quiz-auth-token");
   },
   isLoggedIn() {
-    return this.getToken() !== null;
+    return this.verifyJwtExpirationDate(this.getToken());
+  },
+  verifyJwtExpirationDate(token) {
+    if (!token)
+      return false;
+    const splitted = token.split(".");
+    if (splitted.length < 2)
+      return false;
+    const payload = JSON.parse(atob(splitted[1]));
+    return "exp" in payload && payload.exp > Date.now() / 1000;
   }
 };

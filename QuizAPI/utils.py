@@ -1,6 +1,6 @@
 from functools import wraps
 from re import search
-from sys import stderr
+from traceback import print_exc
 from flask import Response, request
 
 from jwt_utils import decode_token, JwtError
@@ -16,7 +16,7 @@ def returns_json(handler):
 		except APIError as e:
 			ret = e
 		except Exception as e:
-			print(e, file=stderr)
+			print_exc()
 			ret = APIError.internal_server_error(e)
 		if type(ret) is tuple:
 			obj, code = ret
@@ -49,7 +49,7 @@ def request_model(model: type[JsonModel]):
 		@wraps(handler)
 		def wrapper(*args, **kwargs):
 			content_type = request.headers.get("Content-Type")
-			charset_in_content_type = search("charset=(\\S+)", content_type)
+			charset_in_content_type = search("charset=(\\S+)", content_type) if content_type else None
 			charset = charset_in_content_type[1] if charset_in_content_type else "UTF-8"
 			obj = model.from_json(request.get_data().decode(charset))
 			return handler(*args, **kwargs, payload=obj)

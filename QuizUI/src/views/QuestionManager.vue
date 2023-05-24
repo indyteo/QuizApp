@@ -39,6 +39,7 @@ export default {
       else {
         quizApiService.participate(participationStorageService.getPlayerName(), this.answers).then(res => {
           participationStorageService.saveParticipationScore(res.data.score);
+          participationStorageService.saveParticipationSummary(res.data.answersSummaries);
           this.$router.push({ name: "score" });
         });
       }
@@ -46,6 +47,7 @@ export default {
     fetchQuestion(position) {
       quizApiService.getQuestion(position).then(res => this.currentQuestion = res.data);
     }
-  }
+  },
+  inheritAttrs: false
 };
 </script>

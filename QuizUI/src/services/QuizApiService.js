@@ -20,8 +20,7 @@ export default {
       data
     }).catch(error => {
       if (error.response.status === 401) {
-        if (authenticationService.isLoggedIn())
-          authenticationService.logout();
+        authenticationService.logout();
         router.push({ name: "login", query: { returnTo: router.currentRoute.value.fullPath } });
       } else
         Promise.reject(error.response);
@@ -40,7 +39,7 @@ export default {
     return this.call("post", "login", { password });
   },
   listQuestions() {
-    return this.call("get", "questions", null, authenticationService.getToken());
+    return this.call("get", "questions");
   },
   getQuestionById(id) {
     return this.call("get", `questions/${id}`, null, authenticationService.getToken());
