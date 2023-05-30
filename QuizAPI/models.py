@@ -21,8 +21,8 @@ class APIError(Exception, JsonModel):
 		return APIError(f"{resource} not found: {name}", 404)
 
 	@staticmethod
-	def unauthorized():
-		return APIError("You must login to perform this action", 401)
+	def unauthorized(message="You must login to perform this action"):
+		return APIError(message, 401)
 
 	@staticmethod
 	def internal_server_error(error: Exception):
@@ -39,9 +39,13 @@ class Answer(DatabaseModel, JsonModel):
 		self.text = text
 		self.is_correct = is_correct
 
+	def validate(self):
+		if not self.text:
+			raise APIError("Missing answer text")
+
 
 @db.model("questions", Column("id", int, Primary(True)), Column("text", str), Column("title", str), Column("image", str), Column("position", int))
-@json.model(id=Nullable(int), text=str, title=str, image=str, position=int, possible_answers=([Answer, ...], "possibleAnswers"))
+@json.model(id=Nullable(int), text=str, title=str, image=Nullable(str), position=int, possible_answers=([Answer, ...], "possibleAnswers"))
 class Question(DatabaseModel, JsonModel):
 	id: int
 
@@ -51,6 +55,23 @@ class Question(DatabaseModel, JsonModel):
 		self.image = image
 		self.position = position
 		self.possible_answers = possible_answers
+
+	def validate(self):
+		if not self.text:
+			raise APIError("Missing question text")
+		if not self.title:
+			raise APIError("Missing question title")
+		if not self.possible_answers:
+			raise APIError("Missing question answers")
+		correct_count = 0
+		for answer in self.possible_answers:
+			answer.validate()
+			if answer.is_correct:
+				correct_count += 1
+		if correct_count != 1:
+			raise APIError("There should be one and only one correct answer to the question")
+		if self.position <= 0 or self.position > Question.count() + 1:
+			raise APIError("Invalid question position")
 
 	def with_answers(self) -> "Question":
 		self.possible_answers = Answer.list("question = :id", id=self.id)
@@ -93,6 +114,10 @@ class QuizInfo(JsonModel):
 class LoginRequest(JsonModel):
 	password: str
 
+	def validate(self):
+		if not self.password:
+			raise APIError("Missing login password")
+
 
 @json.model(token=str)
 class LoginResponse(JsonModel):
@@ -104,6 +129,10 @@ class LoginResponse(JsonModel):
 class Participation(JsonModel):
 	player_name: str
 	answers: list[int]
+
+	def validate(self):
+		if not self.player_name:
+			raise APIError("Missing participant name")
 
 
 @json.model(correct_answer_position=(int, "correctAnswerPosition"), was_correct=(bool, "wasCorrect"))

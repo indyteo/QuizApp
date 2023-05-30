@@ -1,12 +1,12 @@
 <template>
-  <v-timeline v-if="questions" side="end">
+  <v-timeline v-if="questions" side="end" style="max-width: 400px">
     <v-hover v-for="(question, i) in orderedQuestions" :key="question.id">
       <template v-slot:default="{ isHovering, props }">
         <v-timeline-item
             v-bind="props"
             :dot-color="shouldHighlight(question) ? 'primary' : isHovering ? 'secondary' : undefined"
             :size="shouldHighlight(question) ? undefined : 'x-small'"
-            @click="questionClick(question, i + 1)"
+            @click="questionClick(question, i + 1, props)"
             :style="shouldHighlight(question) ? undefined : 'cursor: pointer'"
         >
           <template v-slot:opposite>
@@ -43,9 +43,11 @@ export default {
       quizApiService.listQuestions().then(res => this.questions = res.data);
   },
   methods: {
-    questionClick(question, n) {
-      if (question.id && question.position !== this.position)
+    questionClick(question, n, p) {
+      if (question.id) {
         this.$emit("question-click", question.id, n);
+        p && p.onMouseleave();
+      }
     },
     shouldHighlight(question) {
       return this.question ? question.id === 0 : question.position === this.position;

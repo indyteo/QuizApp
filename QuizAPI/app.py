@@ -19,9 +19,11 @@ CORS(app)
 @app.errorhandler(Exception)
 @returns_json
 def handle_exception(e):
+	if isinstance(e, APIError):
+		return e
 	if isinstance(e, HTTPException):
 		return APIError(e.description, e.code)
-	raise APIError.internal_server_error(e)
+	return APIError.internal_server_error(e)
 
 
 @app.route("/rebuild-db", methods=["POST"])
@@ -43,7 +45,7 @@ def login(payload: LoginRequest):
 	if password == correct:
 		return LoginResponse(build_token())
 	else:
-		raise APIError.unauthorized()
+		raise APIError.unauthorized("Invalid credentials")
 
 
 @app.route("/quiz-info", methods=["GET"])
